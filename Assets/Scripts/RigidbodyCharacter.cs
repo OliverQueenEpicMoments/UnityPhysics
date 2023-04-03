@@ -52,15 +52,11 @@ public class RigidbodyCharacter : MonoBehaviour
 		}
 	}
 
-	private void FixedUpdate()
-	{
-		if (isRelative)
-		{
+	private void FixedUpdate() {
+		if (isRelative) {
 			rb.AddRelativeForce(direction * speed, ForceMode.Force);
 			rb.AddRelativeTorque(rotate * turnRate);
-		}
-		else
-		{
+		} else {
             rb.AddForce(direction * speed, ForceMode.Force);
             rb.AddTorque(rotate * turnRate);
         }
