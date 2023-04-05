@@ -3,63 +3,73 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class ControllerCharacter : MonoBehaviour
-{
-	[SerializeField] float speed;
-	[SerializeField] float turnRate;
-	[SerializeField] float jumpHeight;
-	[SerializeField] float hitForce;
+public class ControllerCharacter : MonoBehaviour {
+	[SerializeField] float Speed;
+	[SerializeField] float TurnRate;
+	[SerializeField] float JumpHeight;
+	[SerializeField] float DoubleJumpHeight;
+	[SerializeField] float HitForce;
+	[SerializeField, Range(1, 5)] float FallRateMultiplier;
+	[SerializeField, Range(1, 5)] float lowJumpRateMultiplier;
+	[Header("Ground")]
+	[SerializeField] Transform GroundTransform;
+	[SerializeField] LayerMask GroundLayerMask;
 
-	CharacterController characterController;
-	Vector3 velocity = Vector3.zero;
+	CharacterController CharacterController;
+	Vector3 Velocity = Vector3.zero;
 
-	void Start()
-	{
-		characterController = GetComponent<CharacterController>();
+	void Start() {
+		CharacterController = GetComponent<CharacterController>();
 	}
 
-	void Update()
-	{
+	void Update() {
+		// Check if player is on ground
+		bool OnGround = Physics.CheckSphere(GroundTransform.position, 0.2f, GroundLayerMask, QueryTriggerInteraction.Ignore);
+
 		// get direction input
 		Vector3 direction = Vector3.zero;
 		direction.x = Input.GetAxis("Horizontal");
 		direction.z = Input.GetAxis("Vertical");
 
-		// set velocity
-		if (characterController.isGrounded)
-		{
-			velocity.x = direction.x * speed;
-			velocity.z = direction.z * speed;
-			if (velocity.y < 0) velocity.y = 0;
+        Velocity.x = direction.x * Speed;
+        Velocity.z = direction.z * Speed;
+
+        // set velocity
+        if (OnGround) {
+			if (Velocity.y < 0) Velocity.y = 0;
 			if (Input.GetButtonDown("Jump")) {
-				velocity.y += Mathf.Sqrt(jumpHeight * -2 * Physics.gravity.y);
+				Velocity.y += Mathf.Sqrt(JumpHeight * -2 * Physics.gravity.y);
+				StartCoroutine(DoubleJump());
 			}
 		}
 
-		velocity.y += Physics.gravity.y * Time.deltaTime;
+		// Adjust gravity for jump 
+		float GravityMultiplier = 1;
+		if (!OnGround && Velocity.y < 0) GravityMultiplier = FallRateMultiplier;
+		if (!OnGround && Velocity.y > 0 && !Input.GetButton("Jump")) GravityMultiplier = lowJumpRateMultiplier;
+
+		Velocity.y += Physics.gravity.y * GravityMultiplier * Time.deltaTime;
 
 		// move character
-		characterController.Move(velocity * Time.deltaTime);
+		CharacterController.Move(Velocity * Time.deltaTime);
 
-		Vector3 Face = new Vector3(velocity.x, 0, velocity.z);
+		// Rotate character to face direction of movement
+		Vector3 Face = new Vector3(Velocity.x, 0, Velocity.z);
 		if (Face.magnitude > 0) {
-			transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Face), Time.deltaTime * turnRate);
+			transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Face), Time.deltaTime * TurnRate);
 		}
 	}
 
-	void OnControllerColliderHit(ControllerColliderHit hit)
-	{
+	void OnControllerColliderHit(ControllerColliderHit hit) {
 		Rigidbody body = hit.collider.attachedRigidbody;
 
-		// no rigidbody
-		if (body == null || body.isKinematic)
-		{
+		// No rigidbody
+		if (body == null || body.isKinematic) {
 			return;
 		}
 
 		// We dont want to push objects below us
-		if (hit.moveDirection.y < -0.3)
-		{
+		if (hit.moveDirection.y < -0.3)	{
 			return;
 		}
 
@@ -71,6 +81,21 @@ public class ControllerCharacter : MonoBehaviour
 		// then you can also multiply the push velocity by that.
 
 		// Apply the push
-		body.velocity = pushDir * hitForce;
+		body.velocity = pushDir * HitForce;
+	}
+
+    IEnumerator DoubleJump() {
+		// Wait a bit after first jump 
+		yield return new WaitForSeconds(0.01f);
+
+		// Allow a double jump while moving up 
+		while (Velocity.y > 0) {
+			// If jump is pressed add jump velocity
+			if (Input.GetButtonDown("Jump")) {
+                Velocity.y += Mathf.Sqrt(DoubleJumpHeight * -2 * Physics.gravity.y);
+				break;
+            }
+			yield return null;
+		}
 	}
 }

@@ -1207,6 +1207,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2417256029983151817, guid: 60f5adbb898fb124ebb56e3ccc91d851,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7592403897254063013, guid: 60f5adbb898fb124ebb56e3ccc91d851,
         type: 3}
       propertyPath: m_RootOrder
@@ -1262,10 +1267,40 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7592403897254063016, guid: 60f5adbb898fb124ebb56e3ccc91d851,
+        type: 3}
+      propertyPath: DoubleJumpHeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592403897254063016, guid: 60f5adbb898fb124ebb56e3ccc91d851,
+        type: 3}
+      propertyPath: FallRateMultiplier
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592403897254063016, guid: 60f5adbb898fb124ebb56e3ccc91d851,
+        type: 3}
+      propertyPath: lowJumpRateMultiplier
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592403897254063016, guid: 60f5adbb898fb124ebb56e3ccc91d851,
+        type: 3}
+      propertyPath: GroundLayerMask.m_Bits
+      value: 55
+      objectReference: {fileID: 0}
     - target: {fileID: 7592403897254063019, guid: 60f5adbb898fb124ebb56e3ccc91d851,
         type: 3}
       propertyPath: m_Name
       value: ControllerPlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592403897254063019, guid: 60f5adbb898fb124ebb56e3ccc91d851,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7592403897694287031, guid: 60f5adbb898fb124ebb56e3ccc91d851,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 60f5adbb898fb124ebb56e3ccc91d851, type: 3}
