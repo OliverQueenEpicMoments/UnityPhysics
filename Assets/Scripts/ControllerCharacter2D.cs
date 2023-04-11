@@ -7,10 +7,8 @@ public class ControllerCharacter2D : MonoBehaviour {
 	[SerializeField] Animator animator;
 	[SerializeField] SpriteRenderer Renderer;
 	[SerializeField] float Speed;
-	[SerializeField] float TurnRate;
 	[SerializeField] float JumpHeight;
 	[SerializeField] float DoubleJumpHeight;
-	[SerializeField] float HitForce;
 	[SerializeField, Range(1, 5)] float FallRateMultiplier;
 	[SerializeField, Range(1, 5)] float LowJumpRateMultiplier;
 	[Header("Ground")]
