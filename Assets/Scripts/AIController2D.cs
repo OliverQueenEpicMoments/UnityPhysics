@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class AIController2D : MonoBehaviour {
@@ -18,6 +19,7 @@ public class AIController2D : MonoBehaviour {
 	[SerializeField] float GroundRadius;
     [Header("AI")]
     [SerializeField] Transform[] Waypoints;
+    [SerializeField] Transform PlayerLocation;
     [SerializeField] float RayDistance = 1;
 
 	Rigidbody2D RB;
@@ -39,7 +41,7 @@ public class AIController2D : MonoBehaviour {
 
     void Start() {
 		RB = GetComponent<Rigidbody2D>();
-		//spriterenderer = GetComponent<SpriteRenderer>();
+		spriterenderer = GetComponent<SpriteRenderer>();
 	}
 
     
@@ -48,7 +50,7 @@ public class AIController2D : MonoBehaviour {
         Vector2 direction = Vector2.zero;
         switch (state) {
 			case State.IDLE:
-				//if (CanSeePlayer()) state = State.CHASE;
+				if (CanSeePlayer()) state = State.CHASE;
 				StateTimer += Time.deltaTime;
 				if (StateTimer >= 0.5f) {
                     SetNewWaypointTarget();
@@ -56,7 +58,7 @@ public class AIController2D : MonoBehaviour {
                 }
 				break;
 			case State.PATROL:
-				//if (CanSeePlayer()) state = State.CHASE;
+				if (CanSeePlayer()) state = State.CHASE;
 
 				direction.x = Mathf.Sign(TargetWaypoint.position.x - transform.position.x);
 				float DX = Mathf.Abs(TargetWaypoint.position.x - transform.position.x);
@@ -66,7 +68,17 @@ public class AIController2D : MonoBehaviour {
 				}
 				break;
             case State.CHASE:
+                direction.x = Mathf.Sign(PlayerLocation.position.x - transform.position.x);
+                float Distance = Vector3.Distance(PlayerLocation.position, transform.position);
+                if (Distance <= 2) {
+					StartCoroutine(Attack());
+                }
 
+                StateTimer = 2;
+                StateTimer -= Time.deltaTime;
+                if (StateTimer < 0) {
+                    state = State.PATROL;
+                }
                 break;
             case State.ATTACK:
 
@@ -130,7 +142,14 @@ public class AIController2D : MonoBehaviour {
 		}
 	}
 
-	private bool UpdateGroundCheck() {
+    IEnumerator Attack() {
+        state = State.ATTACK;
+        animator.SetTrigger("Attack");
+        yield return new WaitForSeconds(2.0f);
+        state = State.IDLE;
+    }
+
+    private bool UpdateGroundCheck() {
 		// Check if character is on ground
         Collider2D Collider = Physics2D.OverlapCircle(GroundTransform.position, GroundRadius, GroundLayerMask);
 		if (Collider != null) { 

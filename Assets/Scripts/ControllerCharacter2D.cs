@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class ControllerCharacter2D : MonoBehaviour {
 	[SerializeField] Animator animator;
-	[SerializeField] SpriteRenderer Renderer;
+	[SerializeField] SpriteRenderer spriterenderer;
 	[SerializeField] float Speed;
 	[SerializeField] float JumpHeight;
 	[SerializeField] float DoubleJumpHeight;
@@ -17,22 +17,27 @@ public class ControllerCharacter2D : MonoBehaviour {
 	[SerializeField] float GroundRadius;
 
 	Rigidbody2D RB;
-	SpriteRenderer spriterenderer;
+
     Vector2 Velocity = Vector2.zero;
 	bool FaceRight = true;
+    float GroundAngle = 0;
 
-	void Start() {
+    void Start() {
 		RB = GetComponent<Rigidbody2D>();
 		spriterenderer = GetComponent<SpriteRenderer>();
 	}
 
 	void Update() {
 		// Check if player is on ground
-		bool OnGround = Physics2D.OverlapCircle(GroundTransform.position, GroundRadius, GroundLayerMask) != null;
+		bool OnGround = UpdateGroundCheck();
 
 		// get direction input
 		Vector2 direction = Vector2.zero;
 		direction.x = Input.GetAxis("Horizontal");
+
+        // Transform direction to slope space 
+        direction = Quaternion.AngleAxis(GroundAngle, Vector3.forward) * direction;
+        Debug.DrawRay(transform.position, direction, Color.green);
 
         Velocity.x = direction.x * Speed;
 
@@ -80,7 +85,21 @@ public class ControllerCharacter2D : MonoBehaviour {
 		}
 	}
 
-	private void Flip() {
+    private bool UpdateGroundCheck() {
+        // Check if character is on ground
+        Collider2D Collider = Physics2D.OverlapCircle(GroundTransform.position, GroundRadius, GroundLayerMask);
+        if (Collider != null) {
+            RaycastHit2D raycasthit = Physics2D.Raycast(GroundTransform.position, Vector2.down, GroundRadius, GroundLayerMask);
+            if (raycasthit.collider != null) {
+                // Get the angle of the ground
+                GroundAngle = Vector2.SignedAngle(Vector2.up, raycasthit.normal);
+                Debug.DrawRay(raycasthit.point, raycasthit.normal, Color.red);
+            }
+        }
+        return Collider != null;
+    }
+
+    private void Flip() {
 		Vector3 CurrentScale = gameObject.transform.localScale;
 		CurrentScale.x *= -1;
 		gameObject.transform.localScale = CurrentScale;
