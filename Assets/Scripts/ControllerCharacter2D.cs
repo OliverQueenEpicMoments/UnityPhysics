@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class ControllerCharacter2D : MonoBehaviour {
+public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 	[SerializeField] Animator animator;
 	[SerializeField] SpriteRenderer spriterenderer;
 	[SerializeField] float Speed;
@@ -15,6 +15,9 @@ public class ControllerCharacter2D : MonoBehaviour {
 	[SerializeField] Transform GroundTransform;
 	[SerializeField] LayerMask GroundLayerMask;
 	[SerializeField] float GroundRadius;
+	[Header("Attack")]
+	[SerializeField] Transform AttackTransform;
+	[SerializeField] float AttackRadius;
 
 	Rigidbody2D RB;
 
@@ -32,14 +35,14 @@ public class ControllerCharacter2D : MonoBehaviour {
 		bool OnGround = UpdateGroundCheck();
 
 		// get direction input
-		Vector2 direction = Vector2.zero;
-		direction.x = Input.GetAxis("Horizontal");
+		Vector2 Direction = Vector2.zero;
+		Direction.x = Input.GetAxis("Horizontal");
 
         // Transform direction to slope space 
-        direction = Quaternion.AngleAxis(GroundAngle, Vector3.forward) * direction;
-        Debug.DrawRay(transform.position, direction, Color.green);
+        Direction = Quaternion.AngleAxis(GroundAngle, Vector3.forward) * Direction;
+        Debug.DrawRay(transform.position, Direction, Color.green);
 
-        Velocity.x = direction.x * Speed;
+        Velocity.x = Direction.x * Speed;
 
         // set velocity
         if (OnGround) {
@@ -48,6 +51,10 @@ public class ControllerCharacter2D : MonoBehaviour {
 				Velocity.y += Mathf.Sqrt(JumpHeight * -2 * Physics.gravity.y);
 				StartCoroutine(DoubleJump());
 				animator.SetTrigger("Jump");
+			}
+
+			if (Input.GetMouseButton(0)) {
+				animator.SetTrigger("Attack");
 			}
 		}
 
@@ -105,13 +112,25 @@ public class ControllerCharacter2D : MonoBehaviour {
 		gameObject.transform.localScale = CurrentScale;
 
 		FaceRight = !FaceRight;
-
-		//FaceRight = false;
-		//spriterenderer.flipX = !FaceRight;
 	}
 
     private void OnDrawGizmos() {
         Gizmos.color = Color.red;
 		Gizmos.DrawSphere(GroundTransform.position, GroundRadius);
+    }
+
+    private void CheckAttack() {
+        Collider2D[] Colliders = Physics2D.OverlapCircleAll(AttackTransform.position, AttackRadius);
+        foreach (Collider2D Collider in Colliders) {
+            if (Collider.gameObject == gameObject) continue;
+
+            if (Collider.gameObject.TryGetComponent<IDamagable>(out var Damagable)) {
+                Damagable.Damage(10);
+            }
+        }
+    }
+
+    public void Damage(int damage) {
+        throw new System.NotImplementedException();
     }
 }

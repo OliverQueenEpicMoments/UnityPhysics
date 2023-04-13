@@ -5,7 +5,7 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class AIController2D : MonoBehaviour {
+public class AIController2D : MonoBehaviour, IDamagable {
 	[SerializeField] Animator animator;
 	[SerializeField] SpriteRenderer spriterenderer;
 	[SerializeField] float Speed;
@@ -18,9 +18,13 @@ public class AIController2D : MonoBehaviour {
 	[SerializeField] LayerMask GroundLayerMask;
 	[SerializeField] float GroundRadius;
     [Header("AI")]
-    [SerializeField] Transform[] Waypoints;
     [SerializeField] Transform PlayerLocation;
+    [SerializeField] Transform[] Waypoints;
     [SerializeField] float RayDistance = 1;
+    [SerializeField] string EnemyTag;
+    [SerializeField] LayerMask RaycastLayerMask;
+
+	public float Health = 100;
 
 	Rigidbody2D RB;
 
@@ -28,6 +32,7 @@ public class AIController2D : MonoBehaviour {
 	bool FaceRight = true;
 	float GroundAngle = 0;
 	Transform TargetWaypoint = null;
+	GameObject Enemy = null;
 
 	enum State { 
 		IDLE,
@@ -37,52 +42,62 @@ public class AIController2D : MonoBehaviour {
 	}
 
 	State state = State.IDLE;
-	float StateTimer = 0;
+	float StateTimer = 1;
 
     void Start() {
 		RB = GetComponent<Rigidbody2D>();
 		spriterenderer = GetComponent<SpriteRenderer>();
 	}
 
-    
 	void Update() {
         // Update AI
-        Vector2 direction = Vector2.zero;
+		CheckEnemySeen();
+
+        Vector2 Direction = Vector2.zero;
         switch (state) {
 			case State.IDLE:
-				if (CanSeePlayer()) state = State.CHASE;
-				StateTimer += Time.deltaTime;
-				if (StateTimer >= 0.5f) {
+				if (Enemy != null) state = State.CHASE;
+
+                StateTimer -= Time.deltaTime;
+				if (StateTimer <= 0) {
                     SetNewWaypointTarget();
                     state = State.PATROL;
                 }
 				break;
 			case State.PATROL:
-				if (CanSeePlayer()) state = State.CHASE;
+				{
+                    if (Enemy != null) state = State.CHASE;
 
-				direction.x = Mathf.Sign(TargetWaypoint.position.x - transform.position.x);
-				float DX = Mathf.Abs(TargetWaypoint.position.x - transform.position.x);
-				if (DX <= 0.25f)	{
-					state = State.IDLE;
-					StateTimer = 0;
-				}
+                    Direction.x = Mathf.Sign(TargetWaypoint.position.x - transform.position.x);
+                    float DX = Mathf.Abs(TargetWaypoint.position.x - transform.position.x);
+                    if (DX <= 0.25f) {
+                        state = State.IDLE;
+                        StateTimer = 1;
+                    }
+                }
 				break;
             case State.CHASE:
-                direction.x = Mathf.Sign(PlayerLocation.position.x - transform.position.x);
-                float Distance = Vector3.Distance(PlayerLocation.position, transform.position);
-                if (Distance <= 2) {
-					StartCoroutine(Attack());
-                }
+				{
+                    if (Enemy == null) {
+                        state = State.IDLE;
+                        StateTimer = 1;
+                        break;
+                    }
 
-                StateTimer = 2;
-                StateTimer -= Time.deltaTime;
-                if (StateTimer < 0) {
-                    state = State.PATROL;
+                    float DX = Mathf.Abs(Enemy.transform.position.x - transform.position.x);
+                    if (DX <= 1) {
+						state = State.ATTACK;
+						animator.SetTrigger("Attack");
+					} else {
+                        Direction.x = Mathf.Sign(Enemy.transform.position.x - transform.position.x);
+                    }
+                }
+				break;
+            case State.ATTACK:
+                if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !animator.IsInTransition(0)) {
+                    state = State.CHASE;
                 }
                 break;
-            case State.ATTACK:
-
-				break;
 			default:
 				break;
 		}
@@ -93,19 +108,19 @@ public class AIController2D : MonoBehaviour {
         // get direction input
 
         // Transform direction to slope space
-        direction = Quaternion.AngleAxis(GroundAngle, Vector3.forward) * direction;
-        Debug.DrawRay(transform.position, direction, Color.green);
+        Direction = Quaternion.AngleAxis(GroundAngle, Vector3.forward) * Direction;
+        Debug.DrawRay(transform.position, Direction, Color.green);
 
-        Velocity.x = direction.x * Speed;
+        Velocity.x = Direction.x * Speed;
 
         // set velocity
         if (OnGround) {
 			if (Velocity.y < 0) Velocity.y = 0;
-			if (Input.GetButtonDown("Jump")) {
-				Velocity.y += Mathf.Sqrt(JumpHeight * -2 * Physics.gravity.y);
-				StartCoroutine(DoubleJump());
-				animator.SetTrigger("Jump");
-			}
+			//if (Input.GetButtonDown("Jump")) {
+			//	Velocity.y += Mathf.Sqrt(JumpHeight * -2 * Physics.gravity.y);
+			//	StartCoroutine(DoubleJump());
+			//	animator.SetTrigger("Jump");
+			//}
 		}
 
 		// Adjust gravity for jump 
@@ -126,28 +141,6 @@ public class AIController2D : MonoBehaviour {
 		animator.SetFloat("Speed", Mathf.Abs(Velocity.x));
 		animator.SetBool("Fall", !OnGround && Velocity.y < -0.1f);
 	}
-
-    IEnumerator DoubleJump() {
-		// Wait a bit after first jump 
-		yield return new WaitForSeconds(0.01f);
-
-		// Allow a double jump while moving up 
-		while (Velocity.y > 0) {
-			// If jump is pressed add jump velocity
-			if (Input.GetButtonDown("Jump")) {
-                Velocity.y += Mathf.Sqrt(DoubleJumpHeight * -2 * Physics.gravity.y);
-				break;
-            }
-			yield return null;
-		}
-	}
-
-    IEnumerator Attack() {
-        state = State.ATTACK;
-        animator.SetTrigger("Attack");
-        yield return new WaitForSeconds(2.0f);
-        state = State.IDLE;
-    }
 
     private bool UpdateGroundCheck() {
 		// Check if character is on ground
@@ -187,10 +180,17 @@ public class AIController2D : MonoBehaviour {
         TargetWaypoint = Waypoint;
 	}
 
-	private bool CanSeePlayer() {
-        RaycastHit2D raycasthit = Physics2D.Raycast(transform.position, ((FaceRight) ? Vector2.right : Vector2.left) * RayDistance);
-        Debug.DrawRay(transform.position, ((FaceRight) ? Vector2.right : Vector2.left) * RayDistance);
+    private void CheckEnemySeen() {
+        Enemy = null;
+        RaycastHit2D raycastHit = Physics2D.Raycast(transform.position, ((FaceRight) ? Vector2.right : Vector2.left), RayDistance, RaycastLayerMask);
+        if (raycastHit.collider != null && raycastHit.collider.gameObject.CompareTag(EnemyTag)) {
+            Enemy = raycastHit.collider.gameObject;
+            Debug.DrawRay(transform.position, ((FaceRight) ? Vector2.right : Vector2.left) * RayDistance, Color.red);
+        }
+    }
 
-        return raycasthit.collider != null && raycasthit.collider.gameObject.CompareTag("Player");
+	public void Damage(int damage) { 
+		Health -= damage;
+		print(Health);
 	}
 }
