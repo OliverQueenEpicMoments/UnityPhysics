@@ -32,7 +32,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 
 	void Update() {
 		// Check if player is on ground
-		bool OnGround = UpdateGroundCheck();
+		bool OnGround = UpdateGroundCheck() && (RB.velocity.y <= 0);
 
 		// get direction input
 		Vector2 Direction = Vector2.zero;
