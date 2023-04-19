@@ -108,9 +108,9 @@ TextureImporter:
       name: _Attack2NoMovement_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 5
         y: 0
-        width: 120
+        width: 119.166664
         height: 80
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -129,9 +129,9 @@ TextureImporter:
       name: _Attack2NoMovement_1
       rect:
         serializedVersion: 2
-        x: 120
+        x: 124
         y: 0
-        width: 120
+        width: 119.166664
         height: 80
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -150,9 +150,9 @@ TextureImporter:
       name: _Attack2NoMovement_2
       rect:
         serializedVersion: 2
-        x: 240
+        x: 243
         y: 0
-        width: 120
+        width: 119.166664
         height: 80
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -171,9 +171,9 @@ TextureImporter:
       name: _Attack2NoMovement_3
       rect:
         serializedVersion: 2
-        x: 360
+        x: 362
         y: 0
-        width: 120
+        width: 119.166664
         height: 80
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -192,9 +192,9 @@ TextureImporter:
       name: _Attack2NoMovement_4
       rect:
         serializedVersion: 2
-        x: 480
+        x: 481
         y: 0
-        width: 120
+        width: 119.166664
         height: 80
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -215,7 +215,7 @@ TextureImporter:
         serializedVersion: 2
         x: 600
         y: 0
-        width: 120
+        width: 119.166664
         height: 80
       alignment: 0
       pivot: {x: 0, y: 0}

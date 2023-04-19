@@ -99,7 +99,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
             RaycastHit2D raycasthit = Physics2D.Raycast(GroundTransform.position, Vector2.down, GroundRadius, GroundLayerMask);
             if (raycasthit.collider != null) {
                 // Get the angle of the ground
-                GroundAngle = Vector2.SignedAngle(Vector2.up, raycasthit.normal);
+                //GroundAngle = Vector2.SignedAngle(Vector2.up, raycasthit.normal);
                 Debug.DrawRay(raycasthit.point, raycasthit.normal, Color.red);
             }
         }
