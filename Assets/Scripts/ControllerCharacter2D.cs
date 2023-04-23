@@ -53,8 +53,13 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 				animator.SetTrigger("Jump");
 			}
 
-			if (Input.GetMouseButton(0)) {
+			if (Input.GetMouseButtonDown(0)) {
+				StartCoroutine(AttackChain());
 				animator.SetTrigger("Attack");
+			}
+
+			if (Input.GetKeyDown(KeyCode.LeftShift)) {
+				animator.SetTrigger("Slide");
 			}
 		}
 
@@ -75,7 +80,8 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		// Update the animator
 		animator.SetFloat("Speed", Mathf.Abs(Velocity.x));
 		animator.SetBool("Fall", !OnGround && Velocity.y < -0.1f);
-	}
+        //animator.ResetTrigger("Attack");
+    }
 
     IEnumerator DoubleJump() {
 		// Wait a bit after first jump 
@@ -84,13 +90,25 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		// Allow a double jump while moving up 
 		while (Velocity.y > 0) {
 			// If jump is pressed add jump velocity
-			if (Input.GetButtonDown("Jump")) {
+			if (Input.GetMouseButtonDown(0)) {
                 Velocity.y += Mathf.Sqrt(DoubleJumpHeight * -2 * Physics.gravity.y);
 				break;
             }
 			yield return null;
 		}
 	}
+
+	IEnumerator AttackChain() {
+        yield return new WaitForSeconds(0.1f);
+
+        while (Velocity.y <= 0) {
+            if (Input.GetButtonDown("Jump")) {
+                animator.SetTrigger("AttackChain");
+                break;
+            }
+            yield return null;
+        }
+    } 
 
     private bool UpdateGroundCheck() {
         // Check if character is on ground
