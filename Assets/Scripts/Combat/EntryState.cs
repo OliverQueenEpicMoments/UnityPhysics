@@ -13,10 +13,6 @@ public class EntryState : MeleeBaseState {
         Debug.Log("Player attack " + AttackIndex + " fired");
     }
 
-    public override void OnExit() {
-        base.OnExit();
-    }
-
     public override void OnUpdate() {
         base.OnUpdate();
 

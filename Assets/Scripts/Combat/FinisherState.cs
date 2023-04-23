@@ -8,7 +8,7 @@ public class FinisherState : MeleeBaseState {
 
         // Attack
         AttackIndex = 2;
-        Duration = 0.75f;
+        Duration = 0.5f;
         animator.SetTrigger("Attack" + AttackIndex);
         Debug.Log("Player attack " + AttackIndex + " fired");
     }

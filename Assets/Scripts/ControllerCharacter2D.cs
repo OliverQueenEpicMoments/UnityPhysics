@@ -53,10 +53,10 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 				animator.SetTrigger("Jump");
 			}
 
-			if (Input.GetMouseButtonDown(0)) {
-				StartCoroutine(AttackChain());
-				animator.SetTrigger("Attack");
-			}
+			//if (Input.GetMouseButtonDown(0)) {
+			//	StartCoroutine(AttackChain());
+			//	animator.SetTrigger("Attack");
+			//}
 
 			if (Input.GetKeyDown(KeyCode.LeftShift)) {
 				animator.SetTrigger("Slide");
@@ -80,7 +80,6 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		// Update the animator
 		animator.SetFloat("Speed", Mathf.Abs(Velocity.x));
 		animator.SetBool("Fall", !OnGround && Velocity.y < -0.1f);
-        //animator.ResetTrigger("Attack");
     }
 
     IEnumerator DoubleJump() {
@@ -90,7 +89,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		// Allow a double jump while moving up 
 		while (Velocity.y > 0) {
 			// If jump is pressed add jump velocity
-			if (Input.GetMouseButtonDown(0)) {
+			if (Input.GetButtonDown("Jump")) {
                 Velocity.y += Mathf.Sqrt(DoubleJumpHeight * -2 * Physics.gravity.y);
 				break;
             }
