@@ -26,7 +26,7 @@ public class MeleeBaseState : State {
         AttackPressedTimer -= Time.deltaTime;
 
         if (animator.GetFloat("Weapon.Active") > 0) Attack();
-        if (Input.GetMouseButtonDown(0)) AttackPressedTimer = 2;
+        if (Input.GetMouseButtonDown(0)) AttackPressedTimer = 2.5f;
         if (animator.GetFloat("AttackWindow.Open") > 0f && AttackPressedTimer > 0) ShouldCombo = true;
     }
 

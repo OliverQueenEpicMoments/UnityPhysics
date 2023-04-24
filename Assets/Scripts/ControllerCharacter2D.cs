@@ -58,10 +58,10 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 			//	animator.SetTrigger("Attack");
 			//}
 
-			if (Input.GetKeyDown(KeyCode.LeftShift)) {
-				animator.SetTrigger("Slide");
-			}
-		}
+			if (Input.GetKeyDown(KeyCode.LeftShift)) animator.SetTrigger("Slide");
+
+            if (Input.GetKeyDown(KeyCode.E)) animator.SetTrigger("Roll");
+        }
 
 		// Adjust gravity for jump 
 		float GravityMultiplier = 1;
