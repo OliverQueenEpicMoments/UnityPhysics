@@ -11,15 +11,24 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 	[SerializeField] float DoubleJumpHeight;
 	[SerializeField, Range(1, 5)] float FallRateMultiplier;
 	[SerializeField, Range(1, 5)] float LowJumpRateMultiplier;
+
 	[Header("Ground")]
 	[SerializeField] Transform GroundTransform;
 	[SerializeField] LayerMask GroundLayerMask;
 	[SerializeField] float GroundRadius;
+
 	[Header("Attack")]
 	[SerializeField] Transform AttackTransform;
 	[SerializeField] float AttackRadius;
 
+	private bool CanDash = true;
+	private bool IsDashing;
+	private float DashingPower = 48f;
+	private float DashingTime = 0.3f;
+	private float DashingCooldown = 1f;
+
 	Rigidbody2D RB;
+	[SerializeField] private TrailRenderer Trail;
 
     Vector2 Velocity = Vector2.zero;
 	bool FaceRight = true;
@@ -31,6 +40,8 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 	}
 
 	void Update() {
+		if (IsDashing) return;
+
 		// Check if player is on ground
 		bool OnGround = UpdateGroundCheck() && (RB.velocity.y <= 0);
 
@@ -53,12 +64,10 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 				animator.SetTrigger("Jump");
 			}
 
-			//if (Input.GetMouseButtonDown(0)) {
-			//	StartCoroutine(AttackChain());
-			//	animator.SetTrigger("Attack");
-			//}
-
-			if (Input.GetKeyDown(KeyCode.LeftShift)) animator.SetTrigger("Slide");
+			if (Input.GetKeyDown(KeyCode.LeftShift) && CanDash) {
+                animator.SetTrigger("Slide");
+                StartCoroutine(Dash());
+            }
 
             if (Input.GetKeyDown(KeyCode.E)) animator.SetTrigger("Roll");
         }
@@ -97,17 +106,22 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		}
 	}
 
-	IEnumerator AttackChain() {
-        yield return new WaitForSeconds(0.1f);
+	IEnumerator Dash() {
+		CanDash = false;
+		IsDashing = true;
 
-        while (Velocity.y <= 0) {
-            if (Input.GetButtonDown("Jump")) {
-                animator.SetTrigger("AttackChain");
-                break;
-            }
-            yield return null;
-        }
-    } 
+		float OriginalGravity = RB.gravityScale;
+		RB.gravityScale = 0f;
+
+		Velocity.x = transform.localScale.x * DashingPower;
+		//Trail.emitting = true;
+		yield return new WaitForSeconds(DashingTime);
+		//Trail.emitting = false;
+		RB.gravityScale = OriginalGravity;
+		IsDashing = false;
+		yield return new WaitForSeconds(DashingCooldown);
+		CanDash = true;
+	}
 
     private bool UpdateGroundCheck() {
         // Check if character is on ground

@@ -45,7 +45,7 @@ public class MeleeBaseState : State {
                 TeamComponent HitTeamComponent = CollidersToDamage[i].GetComponentInChildren<TeamComponent>();
 
                 if (HitTeamComponent && HitTeamComponent.TeamIndex == TeamIndex.Enemy) {
-                    GameObject.Instantiate(HitEffectPrefab, CollidersToDamage[i].transform);
+                    if (HitEffectPrefab != null) GameObject.Instantiate(HitEffectPrefab, CollidersToDamage[i].transform);
                     Debug.Log("Enemy has taken " + AttackIndex + " damage");
                     CollidersDamaged.Add(CollidersToDamage[i]);
                 }

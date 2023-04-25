@@ -19,12 +19,15 @@ public class AIController2D : MonoBehaviour, IDamagable {
 	[SerializeField] float GroundRadius;
     [Header("AI")]
     [SerializeField] Transform PlayerLocation;
+    [SerializeField] Transform RaycastLocation;
     [SerializeField] Transform[] Waypoints;
     [SerializeField] float RayDistance = 1;
     [SerializeField] string EnemyTag;
     [SerializeField] LayerMask RaycastLayerMask;
+    [SerializeField] bool HasFall = true;
 
 	public float Health = 100;
+	private bool AttackSwap = true;
 
 	Rigidbody2D RB;
 
@@ -85,9 +88,15 @@ public class AIController2D : MonoBehaviour, IDamagable {
                     }
 
                     float DX = Mathf.Abs(Enemy.transform.position.x - transform.position.x);
-                    if (DX <= 1) {
+                    if (DX <= 0.8f) {
 						state = State.ATTACK;
-						animator.SetTrigger("Attack");
+						if (AttackSwap) {
+                            animator.SetTrigger("Attack1");
+							AttackSwap = false;
+                        } else if (AttackSwap == false) {
+                            animator.SetTrigger("Attack2");
+                            AttackSwap = true;
+                        }
 					} else {
                         Direction.x = Mathf.Sign(Enemy.transform.position.x - transform.position.x);
                     }
@@ -139,8 +148,8 @@ public class AIController2D : MonoBehaviour, IDamagable {
 
 		// Update the animator
 		animator.SetFloat("Speed", Mathf.Abs(Velocity.x));
-		animator.SetBool("Fall", !OnGround && Velocity.y < -0.1f);
-	}
+		if (HasFall == true) animator.SetBool("Fall", !OnGround && Velocity.y < -0.1f);
+    }
 
     private bool UpdateGroundCheck() {
 		// Check if character is on ground
@@ -185,7 +194,7 @@ public class AIController2D : MonoBehaviour, IDamagable {
         RaycastHit2D raycastHit = Physics2D.Raycast(transform.position, ((FaceRight) ? Vector2.right : Vector2.left), RayDistance, RaycastLayerMask);
         if (raycastHit.collider != null && raycastHit.collider.gameObject.CompareTag(EnemyTag)) {
             Enemy = raycastHit.collider.gameObject;
-            Debug.DrawRay(transform.position, ((FaceRight) ? Vector2.right : Vector2.left) * RayDistance, Color.red);
+            Debug.DrawRay(RaycastLocation.position, ((FaceRight) ? Vector2.right : Vector2.left) * RayDistance, Color.red);
         }
     }
 
