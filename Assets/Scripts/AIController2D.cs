@@ -8,6 +8,7 @@ using static UnityEngine.GraphicsBuffer;
 public class AIController2D : MonoBehaviour, IDamagable {
 	[SerializeField] Animator animator;
 	[SerializeField] SpriteRenderer spriterenderer;
+	[SerializeField] Health EnemyHealth;
 	[SerializeField] float Speed;
 	[SerializeField] float JumpHeight;
 	[SerializeField] float DoubleJumpHeight;
@@ -25,6 +26,7 @@ public class AIController2D : MonoBehaviour, IDamagable {
     [SerializeField] string EnemyTag;
     [SerializeField] LayerMask RaycastLayerMask;
     [SerializeField] bool HasFall = true;
+    [SerializeField] float EnemyDamage = 1;
 
 	public float Health = 100;
 	private bool AttackSwap = true;
@@ -41,7 +43,9 @@ public class AIController2D : MonoBehaviour, IDamagable {
 		IDLE,
 		PATROL,
 		CHASE,
-		ATTACK
+		ATTACK,
+		// Hit state where stunned and goes to chase?
+		DEATH
 	}
 
 	State state = State.IDLE;
@@ -50,11 +54,13 @@ public class AIController2D : MonoBehaviour, IDamagable {
     void Start() {
 		RB = GetComponent<Rigidbody2D>();
 		spriterenderer = GetComponent<SpriteRenderer>();
+		EnemyHealth = GetComponent<Health>();
 	}
 
 	void Update() {
         // Update AI
 		CheckEnemySeen();
+		if (EnemyHealth.CurrentHealth <= 0) state = State.DEATH;
 
         Vector2 Direction = Vector2.zero;
         switch (state) {
@@ -88,14 +94,14 @@ public class AIController2D : MonoBehaviour, IDamagable {
                     }
 
                     float DX = Mathf.Abs(Enemy.transform.position.x - transform.position.x);
-                    if (DX <= 0.8f) {
+                    if (DX <= 0.9f) {
 						state = State.ATTACK;
 						if (AttackSwap) {
-                            animator.SetTrigger("Attack1");
-							AttackSwap = false;
+							StartCoroutine(HitStun(AttackSwap));
+							break;
                         } else if (AttackSwap == false) {
-                            animator.SetTrigger("Attack2");
-                            AttackSwap = true;
+							StartCoroutine(HitStun(AttackSwap));
+                            break;
                         }
 					} else {
                         Direction.x = Mathf.Sign(Enemy.transform.position.x - transform.position.x);
@@ -107,7 +113,10 @@ public class AIController2D : MonoBehaviour, IDamagable {
                     state = State.CHASE;
                 }
                 break;
-			default:
+            case State.DEATH:
+				StartCoroutine(Death());
+				break;
+            default:
 				break;
 		}
 
@@ -202,4 +211,25 @@ public class AIController2D : MonoBehaviour, IDamagable {
 		Health -= damage;
 		print(Health);
 	}
+
+	IEnumerator HitStun(bool chain) {
+		if (chain) {
+			animator.SetTrigger("Attack1");
+            yield return new WaitForSeconds(0.75f);
+            Enemy.GetComponent<Health>().TakeDamage(EnemyDamage);
+            Debug.Log("Player health: " + Enemy.GetComponent<Health>().CurrentHealth);
+            AttackSwap = false;
+        } else {
+            animator.SetTrigger("Attack2");
+            yield return new WaitForSeconds(0.75f);
+            Enemy.GetComponent<Health>().TakeDamage(EnemyDamage);
+			Debug.Log("Player health: " + Enemy.GetComponent<Health>().CurrentHealth);
+            AttackSwap = true;
+        }
+    }
+
+	IEnumerator Death() {
+        yield return new WaitForSeconds(0.75f);
+        Destroy(gameObject);
+    }
 }

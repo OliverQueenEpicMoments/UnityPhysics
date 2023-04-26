@@ -10,7 +10,6 @@ public class EntryState : MeleeBaseState {
         AttackIndex = 1;
         Duration = 0.5f;
         animator.SetTrigger("Attack" + AttackIndex);
-        Debug.Log("Player attack " + AttackIndex + " fired");
     }
 
     public override void OnUpdate() {

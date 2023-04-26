@@ -21,13 +21,21 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 	[SerializeField] Transform AttackTransform;
 	[SerializeField] float AttackRadius;
 
-	private bool CanDash = true;
-	private bool IsDashing;
-	private float DashingPower = 48f;
-	private float DashingTime = 0.3f;
-	private float DashingCooldown = 1f;
+    [Header("Sliding")]
+    private bool CanSlide = true;
+	private bool IsSliding;
+	[SerializeField] private float SlidingPower = 2f;
+    [SerializeField] private float SlidingTime = 0.6f;
+    [SerializeField] private float SlidingCooldown = 1f;
 
-	Rigidbody2D RB;
+	[Header("Rolling")]
+	private bool CanRoll = true;
+	private bool IsRolling;
+    [SerializeField] private float RollingPower = 1.5f;
+    [SerializeField] private float RollingTime = 0.8f;
+    [SerializeField] private float RollingCooldown = 1.25f;
+
+    Rigidbody2D RB;
 	[SerializeField] private TrailRenderer Trail;
 
     Vector2 Velocity = Vector2.zero;
@@ -40,7 +48,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 	}
 
 	void Update() {
-		if (IsDashing) return;
+		if (IsSliding || IsRolling) return;
 
 		// Check if player is on ground
 		bool OnGround = UpdateGroundCheck() && (RB.velocity.y <= 0);
@@ -64,16 +72,19 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 				animator.SetTrigger("Jump");
 			}
 
-			if (Input.GetKeyDown(KeyCode.LeftShift) && CanDash) {
+			if (Input.GetKeyDown(KeyCode.LeftShift) && CanSlide) {
                 animator.SetTrigger("Slide");
-                StartCoroutine(Dash());
+                StartCoroutine(Slide());
             }
-
-            if (Input.GetKeyDown(KeyCode.E)) animator.SetTrigger("Roll");
         }
 
-		// Adjust gravity for jump 
-		float GravityMultiplier = 1;
+        if (Input.GetKeyDown(KeyCode.E) && CanRoll) {
+            animator.SetTrigger("Roll");
+            StartCoroutine(Roll());
+        }
+
+        // Adjust gravity for jump 
+        float GravityMultiplier = 1;
 		if (!OnGround && Velocity.y < 0) GravityMultiplier = FallRateMultiplier;
 		if (!OnGround && Velocity.y > 0 && !Input.GetButton("Jump")) GravityMultiplier = LowJumpRateMultiplier;
 
@@ -106,22 +117,27 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		}
 	}
 
-	IEnumerator Dash() {
-		CanDash = false;
-		IsDashing = true;
-
-		float OriginalGravity = RB.gravityScale;
-		RB.gravityScale = 0f;
-
-		Velocity.x = transform.localScale.x * DashingPower;
-		//Trail.emitting = true;
-		yield return new WaitForSeconds(DashingTime);
-		//Trail.emitting = false;
-		RB.gravityScale = OriginalGravity;
-		IsDashing = false;
-		yield return new WaitForSeconds(DashingCooldown);
-		CanDash = true;
+	IEnumerator Slide() {
+		CanSlide = false;
+		IsSliding = true;
+		Velocity.x += transform.localScale.x * SlidingPower;
+		if (Trail != null) Trail.emitting = true;
+		yield return new WaitForSeconds(SlidingTime);
+        if (Trail != null) Trail.emitting = false;
+		IsSliding = false;
+		yield return new WaitForSeconds(SlidingCooldown);
+		CanSlide = true;
 	}
+
+	IEnumerator Roll() {
+        CanRoll = false;
+		IsRolling = true;
+        Velocity.x += transform.localScale.x * RollingPower;
+        yield return new WaitForSeconds(RollingTime);
+		IsRolling = false;
+		yield return new WaitForSeconds(RollingCooldown);
+		CanRoll = true;
+    }
 
     private bool UpdateGroundCheck() {
         // Check if character is on ground
