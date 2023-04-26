@@ -159,7 +159,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &234307284182490847
 Transform:
   m_ObjectHideFlags: 0
@@ -191,7 +191,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 5358533110109578854}
   spriterenderer: {fileID: 3385616783146329448}
-  Speed: 4
+  EnemyHealth: {fileID: 6961740701596243435}
+  Speed: 6
   JumpHeight: 4
   DoubleJumpHeight: 2
   FallRateMultiplier: 1.63
@@ -226,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb4bf03ad9748ac4088a5343061601c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartingHealth: 10
+  StartingHealth: 6
 --- !u!114 &234307284182490844
 MonoBehaviour:
   m_ObjectHideFlags: 0

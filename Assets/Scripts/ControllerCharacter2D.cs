@@ -51,7 +51,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		if (IsSliding || IsRolling) return;
 
 		// Check if player is on ground
-		bool OnGround = UpdateGroundCheck() && (RB.velocity.y <= 0);
+		bool OnGround = UpdateGroundCheck() && (RB.velocity.y <= 0.1f);
 
 		// get direction input
 		Vector2 Direction = Vector2.zero;
@@ -99,7 +99,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 
 		// Update the animator
 		animator.SetFloat("Speed", Mathf.Abs(Velocity.x));
-		animator.SetBool("Fall", !OnGround && Velocity.y < -0.1f);
+		animator.SetBool("Fall", !OnGround && Velocity.y < -0.2f);
     }
 
     IEnumerator DoubleJump() {

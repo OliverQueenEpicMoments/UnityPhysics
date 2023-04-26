@@ -10,7 +10,6 @@ public class FinisherState : MeleeBaseState {
         AttackIndex = 2;
         Duration = 0.5f;
         animator.SetTrigger("Attack" + AttackIndex);
-        Debug.Log("Player attack " + AttackIndex + " fired");
     }
 
     public override void OnUpdate() {

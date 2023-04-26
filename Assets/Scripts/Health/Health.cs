@@ -15,7 +15,7 @@ public class Health : MonoBehaviour {
     public void TakeDamage(float damage) {
         CurrentHealth = Mathf.Clamp(CurrentHealth - damage, 0, StartingHealth);
 
-        if (CurrentHealth > 0) {
+        if (CurrentHealth > 1) {
             animator.SetTrigger("IsHit");
         } else {
             animator.SetTrigger("Death");

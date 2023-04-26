@@ -60,7 +60,7 @@ public class AIController2D : MonoBehaviour, IDamagable {
 	void Update() {
         // Update AI
 		CheckEnemySeen();
-		if (EnemyHealth.CurrentHealth <= 0) state = State.DEATH;
+		if (EnemyHealth.CurrentHealth <= 1) state = State.DEATH;
 
         Vector2 Direction = Vector2.zero;
         switch (state) {
