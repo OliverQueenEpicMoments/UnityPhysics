@@ -5,7 +5,7 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class AIController2D : MonoBehaviour, IDamagable {
+public class AIController2D : MonoBehaviour {
 	[SerializeField] Animator animator;
 	[SerializeField] SpriteRenderer spriterenderer;
 	[SerializeField] Health EnemyHealth;
@@ -28,7 +28,6 @@ public class AIController2D : MonoBehaviour, IDamagable {
     [SerializeField] bool HasFall = true;
     [SerializeField] float EnemyDamage = 1;
 
-	public float Health = 100;
 	private bool AttackSwap = true;
 
 	Rigidbody2D RB;
@@ -60,7 +59,7 @@ public class AIController2D : MonoBehaviour, IDamagable {
 	void Update() {
         // Update AI
 		CheckEnemySeen();
-		if (EnemyHealth.CurrentHealth <= 1) state = State.DEATH;
+		if (EnemyHealth.CurrentHealth <= 0) state = State.DEATH;
 
         Vector2 Direction = Vector2.zero;
         switch (state) {
@@ -123,8 +122,6 @@ public class AIController2D : MonoBehaviour, IDamagable {
 		// Check if player is on ground
 		bool OnGround = UpdateGroundCheck();
 
-        // get direction input
-
         // Transform direction to slope space
         Direction = Quaternion.AngleAxis(GroundAngle, Vector3.forward) * Direction;
         Debug.DrawRay(transform.position, Direction, Color.green);
@@ -180,9 +177,6 @@ public class AIController2D : MonoBehaviour, IDamagable {
 		gameObject.transform.localScale = CurrentScale;
 
 		FaceRight = !FaceRight;
-
-		//FaceRight = !FaceRight;
-		//spriterenderer.flipX = !FaceRight;
 	}
 
     private void OnDrawGizmos() {
@@ -207,23 +201,18 @@ public class AIController2D : MonoBehaviour, IDamagable {
         }
     }
 
-	public void Damage(int damage) { 
-		Health -= damage;
-		print(Health);
-	}
-
 	IEnumerator HitStun(bool chain) {
 		if (chain) {
 			animator.SetTrigger("Attack1");
             yield return new WaitForSeconds(0.75f);
             Enemy.GetComponent<Health>().TakeDamage(EnemyDamage);
-            Debug.Log("Player health: " + Enemy.GetComponent<Health>().CurrentHealth);
+            //Debug.Log("Player health: " + Enemy.GetComponent<Health>().CurrentHealth);
             AttackSwap = false;
         } else {
             animator.SetTrigger("Attack2");
             yield return new WaitForSeconds(0.75f);
             Enemy.GetComponent<Health>().TakeDamage(EnemyDamage);
-			Debug.Log("Player health: " + Enemy.GetComponent<Health>().CurrentHealth);
+			//Debug.Log("Player health: " + Enemy.GetComponent<Health>().CurrentHealth);
             AttackSwap = true;
         }
     }

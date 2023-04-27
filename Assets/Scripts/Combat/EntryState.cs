@@ -10,6 +10,7 @@ public class EntryState : MeleeBaseState {
         AttackIndex = 1;
         Duration = 0.5f;
         animator.SetTrigger("Attack" + AttackIndex);
+        SoundManager.Instance.PlaySound(AttackSound);
     }
 
     public override void OnUpdate() {

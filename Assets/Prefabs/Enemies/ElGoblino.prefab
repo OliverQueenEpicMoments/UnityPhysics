@@ -77,7 +77,6 @@ MonoBehaviour:
     m_Bits: 63
   HasFall: 0
   EnemyDamage: 1
-  Health: 100
 --- !u!114 &6446124768106418451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91,6 +90,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartingHealth: 6
+  IFrameDuration: 0
+  NumberOfFlashes: 0
+  HurtSound: {fileID: 0}
+  DeathSound: {fileID: 0}
 --- !u!114 &2650673843212805346
 MonoBehaviour:
   m_ObjectHideFlags: 0

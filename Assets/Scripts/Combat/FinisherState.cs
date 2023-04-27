@@ -10,6 +10,7 @@ public class FinisherState : MeleeBaseState {
         AttackIndex = 2;
         Duration = 0.5f;
         animator.SetTrigger("Attack" + AttackIndex);
+        SoundManager.Instance.PlaySound(AttackSound);
     }
 
     public override void OnUpdate() {

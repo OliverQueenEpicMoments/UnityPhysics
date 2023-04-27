@@ -7,6 +7,7 @@ public class MeleeBaseState : State {
     public Animator animator;
     protected bool ShouldCombo;
     protected int AttackIndex;
+    protected AudioClip AttackSound;
 
     protected Collider2D HitCollider;
     private List<Collider2D> CollidersDamaged;
@@ -19,6 +20,7 @@ public class MeleeBaseState : State {
         CollidersDamaged = new List<Collider2D>();
         HitCollider = GetComponent<ComboCharacter>().Hitbox;
         HitEffectPrefab = GetComponent<ComboCharacter>().HitEffect;
+        AttackSound = GetComponent<ComboCharacter>().AttackSound;
     }
 
     public override void OnUpdate() {
@@ -35,6 +37,7 @@ public class MeleeBaseState : State {
     }
 
     protected void Attack() {
+        //SoundManager.Instance.PlaySound(AttackSound);
         Collider2D[] CollidersToDamage = new Collider2D[10];
         ContactFilter2D Filter = new();
         Filter.useTriggers = true;
@@ -47,6 +50,7 @@ public class MeleeBaseState : State {
                 if (HitTeamComponent && HitTeamComponent.TeamIndex == TeamIndex.Enemy) {
                     if (HitEffectPrefab != null) GameObject.Instantiate(HitEffectPrefab, CollidersToDamage[i].transform);
                     HitTeamComponent.GetComponent<Health>().TakeDamage(AttackIndex);
+                    Debug.Log("Enemy health " + HitTeamComponent.GetComponent<Health>().CurrentHealth);
                     CollidersDamaged.Add(CollidersToDamage[i]);
                 }
             }

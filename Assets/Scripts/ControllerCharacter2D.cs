@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class ControllerCharacter2D : MonoBehaviour, IDamagable {
+public class ControllerCharacter2D : MonoBehaviour {
 	[SerializeField] Animator animator;
 	[SerializeField] SpriteRenderer spriterenderer;
 	[SerializeField] float Speed;
@@ -34,6 +34,11 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
     [SerializeField] private float RollingPower = 1.5f;
     [SerializeField] private float RollingTime = 0.8f;
     [SerializeField] private float RollingCooldown = 1.25f;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip AttackSound;
+    [SerializeField] private AudioClip JumpSound;
+    [SerializeField] private AudioClip RollSound;
 
     Rigidbody2D RB;
 	[SerializeField] private TrailRenderer Trail;
@@ -67,6 +72,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
         if (OnGround) {
 			if (Velocity.y < 0) Velocity.y = 0;
 			if (Input.GetButtonDown("Jump")) {
+				SoundManager.Instance.PlaySound(JumpSound);
 				Velocity.y += Mathf.Sqrt(JumpHeight * -2 * Physics.gravity.y);
 				StartCoroutine(DoubleJump());
 				animator.SetTrigger("Jump");
@@ -80,6 +86,7 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 
         if (Input.GetKeyDown(KeyCode.E) && CanRoll) {
             animator.SetTrigger("Roll");
+            SoundManager.Instance.PlaySound(RollSound);
             StartCoroutine(Roll());
         }
 
@@ -106,10 +113,11 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 		// Wait a bit after first jump 
 		yield return new WaitForSeconds(0.01f);
 
-		// Allow a double jump while moving up 
-		while (Velocity.y > 0) {
+        // Allow a double jump while moving up 
+        while (Velocity.y > 0) {
 			// If jump is pressed add jump velocity
 			if (Input.GetButtonDown("Jump")) {
+                SoundManager.Instance.PlaySound(JumpSound);
                 Velocity.y += Mathf.Sqrt(DoubleJumpHeight * -2 * Physics.gravity.y);
 				break;
             }
@@ -132,11 +140,13 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
 	IEnumerator Roll() {
         CanRoll = false;
 		IsRolling = true;
+        Physics2D.IgnoreLayerCollision(3, 6, true);
         Velocity.x += transform.localScale.x * RollingPower;
         yield return new WaitForSeconds(RollingTime);
 		IsRolling = false;
 		yield return new WaitForSeconds(RollingCooldown);
-		CanRoll = true;
+        Physics2D.IgnoreLayerCollision(3, 6, false);
+        CanRoll = true;
     }
 
     private bool UpdateGroundCheck() {
@@ -164,20 +174,5 @@ public class ControllerCharacter2D : MonoBehaviour, IDamagable {
     private void OnDrawGizmos() {
         Gizmos.color = Color.red;
 		Gizmos.DrawSphere(GroundTransform.position, GroundRadius);
-    }
-
-    private void CheckAttack() {
-        Collider2D[] Colliders = Physics2D.OverlapCircleAll(AttackTransform.position, AttackRadius);
-        foreach (Collider2D Collider in Colliders) {
-            if (Collider.gameObject == gameObject) continue;
-
-            if (Collider.gameObject.TryGetComponent<IDamagable>(out var Damagable)) {
-                Damagable.Damage(10);
-            }
-        }
-    }
-
-    public void Damage(int damage) {
-        throw new System.NotImplementedException();
     }
 }

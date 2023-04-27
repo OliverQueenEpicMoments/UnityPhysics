@@ -5,6 +5,7 @@ using UnityEngine;
 public class ComboCharacter : MonoBehaviour {
     private StateMachine MeleeStateMachine;
 
+    public AudioClip AttackSound;
     public Collider2D Hitbox;
     public GameObject HitEffect;
 

@@ -159,7 +159,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &234307284182490847
 Transform:
   m_ObjectHideFlags: 0
@@ -214,7 +214,6 @@ MonoBehaviour:
     m_Bits: 63
   HasFall: 0
   EnemyDamage: 1
-  Health: 100
 --- !u!114 &6961740701596243435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,6 +227,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartingHealth: 6
+  IFrameDuration: 0
+  NumberOfFlashes: 0
+  HurtSound: {fileID: 8300000, guid: ea3e6110d677aa64fbf5788b6b5cb948, type: 3}
+  DeathSound: {fileID: 8300000, guid: 1b60884806aeca848bdbcbe14047da49, type: 3}
 --- !u!114 &234307284182490844
 MonoBehaviour:
   m_ObjectHideFlags: 0

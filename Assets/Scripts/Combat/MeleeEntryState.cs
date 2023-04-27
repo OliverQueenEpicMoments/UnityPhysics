@@ -6,7 +6,7 @@ public class MeleeEntryState : State {
     public override void OnEnter(StateMachine stateMachine) {
         base.OnEnter(stateMachine);
 
-        State NextState = (State)new EntryState();
+        State NextState = new EntryState();
         statemachine.SetNextState(NextState);
     }
 }
