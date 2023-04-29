@@ -43,7 +43,6 @@ public class AIController2D : MonoBehaviour {
 		PATROL,
 		CHASE,
 		ATTACK,
-		// Hit state where stunned and goes to chase?
 		DEATH
 	}
 

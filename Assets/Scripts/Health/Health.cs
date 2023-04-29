@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 
 public class Health : MonoBehaviour {
@@ -12,6 +13,9 @@ public class Health : MonoBehaviour {
     [SerializeField] private float IFrameDuration;
     [SerializeField] private int NumberOfFlashes;
     private SpriteRenderer spriterenderer;
+
+    [Header("Components")]
+    [SerializeField] private Behaviour[] Components;
     private bool Invulnerable = false;
 
     [Header("Audio")]
@@ -32,6 +36,8 @@ public class Health : MonoBehaviour {
             StartCoroutine(Invulnerability());
             SoundManager.Instance.PlaySound(HurtSound);
         } else {
+            foreach (Behaviour component  in Components) component.enabled = false;
+
             animator.SetTrigger("Death");
             SoundManager.Instance.PlaySound(DeathSound);
         }
@@ -39,6 +45,14 @@ public class Health : MonoBehaviour {
 
     public void AddHealth(float heal) {
         CurrentHealth = Mathf.Clamp(CurrentHealth + heal, 0, StartingHealth);
+    }
+
+    public void Respawn() {
+        AddHealth(StartingHealth);
+        animator.ResetTrigger("Death");
+        animator.Play("KnightIdle");
+        StartCoroutine(Invulnerability());
+        foreach (Behaviour component in Components) component.enabled = true;
     }
 
     private IEnumerator Invulnerability() {
